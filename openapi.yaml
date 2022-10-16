@@ -1,0 +1,27 @@
+openapi: 3.0.3
+
+info:
+  title: Integration API
+  description: API for for DPD SK internal data flows
+  version: 1.0.0
+
+externalDocs:
+  description: "Integration API's guide"
+  url: https://foresgroup.sharepoint.com/:f:/s/FTGProjekty/EhPINzfZx8RHm0IXPpbgO3wBvwPYbWe-kmjUamVSgh0AsQ?e=6BrIXz
+
+servers:
+- url: https://tools.dpd.sk/integration-api
+  description: Integration API
+
+paths:
+  "/version":
+    get:
+      description: Returns version of API.
+      responses:
+        "200":
+          description: Version number returned.
+          content: 
+            text/html:
+              schema:
+                type: string
+                example: "1.0"
