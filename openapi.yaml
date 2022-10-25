@@ -1,8 +1,8 @@
-openapi: 3.0.3
+﻿openapi: 3.0.3
 
 info:
   title: Integration API
-  description: API for for DPD SK internal data flows
+  description: API for DPD SK internal data flows
   version: 1.0.0
 
 externalDocs:
@@ -16,6 +16,7 @@ servers:
 paths:
   "/version":
     get:
+      summary: Returns version of API.
       description: Returns version of API.
       responses:
         "200":
@@ -25,3 +26,438 @@ paths:
               schema:
                 type: string
                 example: "1.0"
+        "404":
+          description: Version number failed to fetch because of network/VPN connection failure.
+          content:
+            text/html:
+              schema:
+                type: string
+                example: "Error: Couldn't resolve host name"
+  "/Shp650/1.0/orders/import":
+    post:
+      summary: Import of order data
+      description: Import of order data (from CashApp for instance) into SKDATA2 system and returning extended set of order attributes
+      requestBody:
+        description: Request includes attributes of an order to be created
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                delisId:
+                  type: string
+                  format: "[a-Z0-9]{6}"
+                  description: Identifier of one of the three agreed accounts (mandatory)
+                pickupDate:
+                  type: string
+                  format: YYYYMMDD
+                  description: Pickup date in format YYYYMMDD (mandatory)
+                senderAddressId:
+                  type: string
+                  format: "[0-9]{1,10}"
+                  description: Address identifier
+                recipientTypeId:
+                  type: string
+                  format: "[BC]{1}"
+                  description: Customer type (mandatory) - B=business subject, C=private person
+                recipientName:
+                  type: string
+                  format: "[a-Z]{2,35}"
+                  description: Recipient - first name (mandatory)
+                recipientName2:
+                  type: string
+                  format: "[a-Z]{2,35}"
+                  description: Recipient - last name
+                recipientContactPerson:
+                  type: string
+                  format: "[a-Z]{2,100}"
+                  description: Recipient - first and last name of contact person (mandatory)
+                recipientStreet:
+                  type: string
+                  format: "[a-Z0-9 ]{50}"
+                  description: Recipient - street (mandatory)
+                recipientHouseNr:
+                  type: string
+                  format: "[a-Z0-9/]{6}"
+                  description: Recipient - house number (mandatory)
+                recipientStreet2:
+                  type: string
+                  format: "[a-Z0-9 ]{50}"
+                  description: Recipient - street - second line
+                recipientZip:
+                  type: string
+                  format: "[a-Z0-9]{10}"
+                  description: Recipient - zip code (mandatory)
+                recipientCity:
+                  type: string
+                  format: "[a-Z0-9]{50}"
+                  description: Recipient - city (mandatory)
+                recipientState:
+                  type: string
+                  format: "[a-Z0-9]{50}"
+                  description: Recipient - state
+                recipientCountry:
+                  type: string
+                  format: "[a-Z]{2}"
+                  description: Recipient - country (mandatory)
+                recipientPhone:
+                  type: string
+                  format: "(+)[0-9]{1,29}"
+                  description: Recipient - phone number (mandatory)
+                recipientFax:
+                  type: string
+                  format: "(+)[0-9]{1,29}"
+                  description: Recipient - fax number
+                recipientEmail:
+                  type: string
+                  format: "[a-Z0-9@._]{5,50}"
+                  description: Recipient - email address (mandatory)
+                recipientNote:
+                  type: string
+                  format: "[a-Z0-9 ]{1,70}"
+                  description: Note about recipient
+                recipientReference:
+                  type: string
+                  format: "[a-Z0-9]{1,35}"
+                  description: Recipient - reference
+                recipientInformation:
+                  type: string
+                  format: "[a-Z0-9 ,.]{1,70}"
+                  description: Information about recipient
+                recipientLanguageCode:
+                  type: string
+                  format: "[a-Z]{2}"
+                  description: Language code (mandatory)
+                parcelRank:
+                  type: string
+                  format: "[0-9,]{1,100}"
+                  description: Order of parcels, separated by comma
+                parcelCount:
+                  type: string
+                  format: "[0-9]{1,10}"
+                  description: Number of parcels (mandatory)
+                parcelSwapCount:
+                  type: string
+                  format: "[0-9]{1,10}"
+                  description: Number of inner parcels (mandatory)
+                parcelsVolumes:
+                  type: string
+                  format: "[0-9,]{1000}"
+                  description: Parcels dimensions HHHWWWDDD (H=height, W=width, D=depth) in decimeters, separated by comma
+                parcelsWeights:
+                  type: string
+                  format: "[0-9,]{1000}"
+                  description: Parcels weights in decagrams, separated by comma
+                parcelNote:
+                  type: string
+                  format: "[a-Z0-9 ,.]{1,70}"
+                  description: Note about parcels
+                parcelReference1:
+                  type: string
+                  format: "[a-Z0-9 ]{35}"
+                  description: Reference 1 for parcel
+                parcelReference2:
+                  type: string
+                  format: "[a-Z0-9 ]{35}"
+                  description: Reference 2 for parcel
+                parcelReference3:
+                  type: string
+                  format: "[a-Z0-9 ]{35}"
+                  description: Reference 3 for parcel
+                parcelReference4:
+                  type: string
+                  format: "[a-Z0-9 ]{35}"
+                  description: Reference 4 for parcel
+                parcelCodAmount:
+                  type: string
+                  format: "[0-9]{5}(.)[0-9]{1,2}"
+                  description: Cash on Delivery amount
+                parcelCodVariableSymbol:
+                  type: string
+                  format: "[0-9]{1,10}"
+                  description: Variable symbol for Cash on Delivery
+                parcelCodCardpay:
+                  type: string
+                  format: "(0/1){1}"
+                  description: Card Pay possibility fro Cash on Delivery
+                bankAccountId:
+                  type: string
+                  format: "[0-9]{1,10}"
+                  description: Bank Account identifier
+                bankAccountIban:
+                  type: string
+                  format: "CCNNNNNNNNNNNNNNNNNNNNNN"
+                  description: Bank Account IBAN
+                bankAccountSwift:
+                  type: string
+                  format: "CCCCCCC"
+                  description: Bank Account SWIFT
+                bankAccountName:
+                  type: string
+                  format: "[a-Z0-9 ]{2,25}"
+                  description: Bank Account name
+                bankAccountNumber:
+                  type: string
+                  format: "[a-Z0-9]{35}"
+                  description: External identifier
+                idCheckName:
+                  type: string
+                  format: "[a-Z]{2,70}"
+                  description: First and Last name of a recipient
+                idCheckNumber:
+                  type: string
+                  format: "[a-Z0-9 ]{2,35}"
+                  description: Document number (passport, identification card)
+                pickupId:
+                  type: string
+                  format: "[0-9]{1,10}"
+                  description: Pickup identifier
+                productCode:
+                  type: string
+                  format: "[a-Z0-9 ]{50}"
+                  description: Product code (mandatory) - Classic, Home, AM1 (product DPD 10), AM2 (product DPD 12), AM3 (product DPD 18), 18 (product DPD 18/DPDG), PSD (delivery to parcelshop)
+                services:
+                  type: string
+                  format: "[a-Z0-9 ]{50}"
+                  description: Service codes, separated by comma - COD, SMS, Pneu, SWAP, ID
+                nops:
+                  type: string
+                  description: Special services out of routing - not used at the moment
+                parcelNoteBack:
+                  type: string
+                  format: "[a-Z0-9 ,.]{1,70}"
+                  description: Note to SWP parcel
+                isCollectionRequest:
+                  type: string
+                  format: "[YN]{1}"
+                  description: Collection Request - yes/no (mandatory)
+                isCollectionRequestSentToMe:
+                  type: string
+                  format: "[YN]{1}"
+                  description: Collection Request where recipient is customer - yes/no (mandatory)
+                info1:
+                  type: string
+                  format: "[a-Z0-9 ,.]{1,70}"
+                  description: (optional)
+                info2:
+                  type: string
+                  format: "[a-Z0-9 ,.]{1,70}"
+                  description: (optional)
+                senderName:
+                  type: string
+                  format: "[a-Z0-9 ,.]{2,35}"
+                  description: Sender name (filled if senderAddressIs is empty)
+                senderCompanyName:
+                  type: string
+                  format: "[a-Z0-9 ,.]{2,35}"
+                  description: Company name of a Sender
+                senderName2:
+                  type: string
+                  format: "[a-Z0-9 ,.]{2,35}"
+                  description: Company name of a Sender - the second part
+                senderContactPerson:
+                  type: string
+                  format: "[a-Z ]{2,35}"
+                  description: Contact person of a Sender - first and last name
+                senderStreet:
+                  type: string
+                  format: "[a-Z0-9 ]{50}"
+                  description: Sender - street (filled if senderAddressIs is empty)
+                senderHouseNr:
+                  type: string
+                  format: "[a-Z0-9/]{6}"
+                  description: Sender - house number (filled if senderAddressIs is empty)
+                senderStreet2:
+                  type: string
+                  format: "[a-Z0-9 ]{50}"
+                  description: Sender - street, the second line
+                senderZip:
+                  type: string
+                  format: "[a-Z0-9]{10}"
+                  description: Sender - zip code (filled if senderAddressIs is empty)
+                senderCity:
+                  type: string
+                  format: "[a-Z0-9]{50}"
+                  description: Sender - city (filled if senderAddressIs is empty)
+                senderState:
+                  type: string
+                  format: "[a-Z0-9]{50}"
+                  description: Sender - state
+                senderCountry:
+                  type: string
+                  format: "[a-Z]{2}"
+                  description: Sender - 2 characters ISO country code (filled if senderAddressIs is empty)
+                senderPhone:
+                  type: string
+                  format: "(+)[0-9]{1,29}"
+                  description: Sender - phone number
+                senderFax:
+                  type: string
+                  format: "(+)[0-9]{1,29}"
+                  description: Sender - fax number
+                senderEmail:
+                  type: string
+                  format: "[a-Z0-9@._]{5,50}"
+                  description: Sender - email address
+                returnAddressName:
+                  type: string
+                  format: "[a-Z0-9 ,.]{2,35}"
+                  description: Return Receiver - name
+                returnAddressCompanyName:
+                  type: string
+                  format: "[a-Z0-9 ,.]{2,35}"
+                  description: Return Receiver - company name
+                returnAddressName2:
+                  type: string
+                  format: "[a-Z0-9 ,.]{2,35}"
+                  description: Return Receiver - name, the second part
+                returnAddressContactPerson:
+                  type: string
+                  format: "[a-Z ]{2,35}"
+                  description: Return Receiver - contact person first and last name
+                returnAddressStreet:
+                  type: string
+                  format: "[a-Z0-9 ]{50}"
+                  description: Return Receiver - street (mandatory)
+                returnAddressHouseNr:
+                  type: string
+                  format: "[a-Z0-9/]{6}"
+                  description: Return Receiver - house number
+                returnAddressStreet2:
+                  type: string
+                  format: "[a-Z0-9 ]{50}"
+                  description: Return Receiver - street, the second part
+                returnAddressZip:
+                  type: string
+                  format: "[a-Z0-9]{10}"
+                  description: Return Receiver - zip code
+                returnAddressCity:
+                  type: string
+                  format: "[a-Z0-9]{50}"
+                  description: Return Receiver - city
+                returnAddressState:
+                  type: string
+                  format: "[a-Z0-9]{50}"
+                  description: Return Receiver - state
+                returnAddressCountry:
+                  type: string
+                  format: "[a-Z]{2}"
+                  description: Return Receiver - 2 characters ISO country code
+                returnAddressPhone:
+                  type: string
+                  format: "(+)[0-9]{1,29}"
+                  description: Return Receiver - phone number
+                returnAddressFax:
+                  type: string
+                  format: "(+)[0-9]{1,29}"
+                  description: Return Receiver - fax number
+                returnAddressEmail:
+                  type: string
+                  format: "[a-Z0-9@._]{5,50}"
+                  description: Return Receiver - email address
+            examples:
+              requestBody1: 
+                summary: Request body example
+                value: { "delisId": "BA6871", "pickupDate": "null", "recipientTypeId": "B", "recipientName": "Test", "recipientName2": "Ignoruj", "recipientContactPerson": "Test Ignoruj 1", "recipientStreet": "Testovacia", "recipientHouseNr": "10", "recipientStreet2": "", "recipientZip": "82103", "recipientCity": "Bratislava", "recipientState": "", "recipientCountry": "SK", "recipientPhone": "0905111111", "recipientFax": "", "recipientEmail": "dpd@dpd.sk", "recipientNote": "", "recipientReference": "test ignoruj!", "recipientInformation": "", "recipientLanguageCode": "SK", "parcelRank": "1", "parcelCount": "1", "parcelSwapCount": "0", "parcelsVolumes": "002002002", "parcelsWeights": "100", "parcelNote": "note", "parcelReference1": "ref1", "parcelReference2": "ref2", "parcelReference3": "ref3", "parcelReference4": "ref4", "parcelCodAmount": "0", "parcelCodVariableSymbol": "", "parcelCodCardpay": "", "bankAccountId": "", "idCheckName": "", "idCheckNumber": "", "pickupId": "", "productCode": "AM1", "services": "", "nops": "", "parcelNoteBack": "", "isCollectionRequest": "N", "isCollectionRequestSentToMe": "N", "info1": "", "info2": "", "senderName": "", "senderCompanyName": "TEST IGNORUJ", "senderName2": "", "senderContactPerson": "", "senderStreet": "Testovacia", "senderHouseNr": "1", "senderStreet2": "", "senderZip": "90301", "senderCity": "Senec", "senderState": "", "senderCountry": "SK", "senderPhone": "", "senderFax": "", "senderEmail": "", "returnAddressName": "", "returnAddressCompanyName": "", "returnAddressName2": "", "returnAddressContactPerson": "", "returnAddressStreet": "", "returnAddressHouseNr": "", "returnAddressStreet2": "", "returnAddressZip": "", "returnAddressCity": "", "returnAddressState": "", "returnAddressCountry": "", "returnAddressPhone": "", "returnAddressFax": "", "returnAddressEmail": ""}
+              requestBody2:
+                summary: Request body for COD
+                value: { "delisId": "BA6871", "pickupDate": "null",	"recipientTypeId": "C", "recipientName": "TESTER", "recipientName2": "TESTER", "recipientContactPerson": "TESTER", "recipientStreet": "Hlavná", "recipientHouseNr": "10", "recipientStreet2": "", "recipientZip": "05801", "recipientCity": "Presov", "recipientState": "", "recipientCountry": "SK", "recipientPhone": "0905111111", "recipientFax": "", "recipientEmail": "jan.kratky@test.sk", "recipientNote": "For Jan", "recipientReference": "jan", "recipientInformation": "", "recipientLanguageCode": "SK", "parcelRank": "1", "parcelCount": "2", "parcelSwapCount": "0", "parcelsVolumes": "002002002,003003003", "parcelsWeights": "100,600", "parcelNote": "note", "parcelReference1": "ref1", "parcelReference2": "ref2", "parcelReference3": "ref3", "parcelReference4": "ref4", "parcelCodAmount": "50", "parcelCodVariableSymbol": "", "parcelCodCardpay":"", "bankAccountId": "", "bankAccountIban": "SK6102000000001234567890", "bankAccountSwift": "SUBASKBX", "bankAccountName": "VÚB", "bankAccountNumber": "", "idCheckName": "", "idCheckNumber": "", "pickupId": "", "productCode": "Classic", "services": "COD", "nops": "", "parcelNoteBack": "", "isCollectionRequest": "N", "isCollectionRequestSentToMe": "N", "info1": "", "info2": "", "senderName": "DPD", "senderCompanyName": "", "senderName2": "", "senderContactPerson": "", "senderStreet": "Technická", "senderHouseNr": "7", "senderStreet2": "", "senderZip": "82107", "senderCity": "Bratislava", "senderState": "", "senderCountry": "SK", "senderPhone": "", "senderFax": "", "senderEmail": "", "returnAddressName": "", "returnAddressCompanyName": "", "returnAddressName2": "", "returnAddressContactPerson": "", "returnAddressStreet": "", "returnAddressHouseNr": "", "returnAddressStreet2": "", "returnAddressZip": "", "returnAddressCity": "", "returnAddressState": "", "returnAddressCountry": "", "returnAddressPhone": "", "returnAddressFax": "", "returnAddressEmail": "" }
+        required: true
+      responses:
+        "200":
+          description: Order created.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  parcels:
+                    type: array
+                    description: shipment parcels (mandatory)
+                    items:
+                      type: object
+                      properties:
+                        Id:
+                          type: integer
+                          format: "[0-9]{1,10}"
+                          description: Parcel identifier (mandatory)
+                        parcelNr:
+                          type: string
+                          format: "[0-9]{14}"
+                          description: Parcel number (mandatory)
+                        soCode:
+                          type: string
+                          format: "[0-9]{3}"
+                          description: SO code of a service
+                        asCode:
+                          type: string
+                          format: "[a-Z 0-9]{3}"
+                          description: AS code of a service
+                        serviceAbbr:
+                          type: string
+                          format: "[a-Z0-9 ]{35}"
+                          description: service abbreviation
+                  orderId:
+                    type: integer
+                    format: "[0-9]{1,10}"
+                    description: Order identifier (mandatory)
+                  success:
+                    type: boolean
+                    format: "true/false"
+                    description: Order creation success (mandatory)
+                  messages:
+                    type: array
+                    description: Result of order creation attempt - set of messages
+                    items:
+                      type: string
+                      description: Result message
+                  mpsId:
+                    type: string
+                    format: "[a-Z0-9]{35}"
+                    description: Shipment identifier (mandatory)
+                  soCode:
+                    type: string
+                    format: "[0-9]{3}"
+                    description: SO code of a service
+                  asCode:
+                    type: string
+                    format: "[a-Z 0-9]{3}"
+                    description: AS code of a service
+              examples:
+                responseBody:
+                  summary: Response body example - order created
+                  value: {"parcels": [{"id": 3074457347050100228, "parcelNr": "06705520000442", "soCode": "179", "asCode": "", "serviceAbbr": "" }, {"id": 3074457347050100229, "parcelNr": "06705520000443", "soCode": "179", "asCode": "", "serviceAbbr": "" }], "orderId": 3074457347050079091, "success": true, "messages": [], "mpsId": "EXP0670552000044220220928", "soCode": "179", "asCode": "" }
+        "401":
+          description: Wrong ApiKey.
+          content:
+            text/html:
+              schema:
+                type: string
+                example: "Error: Access Denied - wrong ApiKey"
+  "/Shp650/1.0/orders/{orderId}":
+      parameters:
+        - name: orderId
+          in: path
+          description: Order identifier
+          required: true
+          schema:
+            type: integer
+      delete:
+        summary: Order deletion
+        description: Order with specified Id is deleted
+        responses:
+          "200":
+            description: Order deleted successfully
+            content:
+              text/html:
+                schema:
+                  type: string
+                  example: "Order deleted."
+          "404":
+            description: Order with specified orderId does not exist.
+            content:
+              text/html:
+                schema:
+                  type: string
+                  example: "Order not found."
+               
