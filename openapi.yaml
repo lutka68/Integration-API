@@ -954,3 +954,36 @@ paths:
                     isPersistent:
                       type: boolean
                       format: (true/false)
+              examples:
+                responseBody:
+                  summary: Response body example - parcel info
+                  value: [{"mpsId": "B2C0650560250231520221214", "sender": {"companyName": "", "name": "Profibike (SK21005)", "street": "SNP", "houseNr": "2730/92", "addressLine2": "", "countryCode": "SK", "stateCode": "", "zip": "06901", "city": "Snina", "contactPerson": "", "phone": "+421915118482", "email": "salko.kevljanin@gmail.com", "ico": "null", "dic": "null",   "icDph": "null",}, "receiver": {"companyName": "", "name": "SAZKA a.s. - Luboš Kozakevič", "street": "Stará Kysibelská", "houseNr": "645/71", "addressLine2": "", "countryCode": "CZ",     "stateCode": "", "zip": "36001", "city": "Karlovy Vary", "contactPerson": "", "phone": "+420723582667", "email": "hucifinka@gmail.com", "pudoId": "CZ10846" }, "cod": false, "messages": [{   "senderCompanyName": "Profibike (SK21005)", "senderContactPerson": "Profibike (SK21005)", "messageTypeName": "SMS", "destination": "+420723582667", "ruleTypeId": 902, "languageCode": "SK"}, {"senderCompanyName": "Profibike (SK21005)", "senderContactPerson": "Profibike (SK21005)", "messageTypeName": "Email", "destination": "hucifinka@gmail.com", "ruleTypeId": 902,     "languageCode": "SK", }], "shipmentId": 3074457347051241208, "senderId": 3074457347051254932, "receiverId": 3074457347051254986, "receiverPersonId": 3074457347050017545, "serviceSetCode": "345", "serviceSetId": 1294, "serviceSetASCode": "A15", "serviceSetASId": 88, "parcelNr": "06505602502315", "parentParcelId": 0, "referentialInfo1": "", "referentialInfo2": "",   "referentialInfo3": "", "referentialInfo4": "", "partnerReferentialInfo1": "", "partnerReferentialInfo2": "", "partnerReferentialInfo3": "", "partnerReferentialInfo4": "", "parcelRank": 1,   "receiverReference": "", "volume": "025050100", "declaredWeight": 50, "measuredWeight": 0, "insuranceAmount": 0, "insuranceCurrencyCode": "", "insuranceParcel": "", "isHazardousParcel": false, "hazardousPackingCode": "", "content": "", "originParcelNr": "", "ownerBusinessUnit": "DPD", "partnerCode": "", "bagNr": "", "isDummy": false, "stateId": "ReadyForPickup",   "parcelClass": "", "labelType": "", "relabelReference": "", "nonSystemReturnConsolidationParcelId": 0, "serviceText": "", "serviceAbbr": "", "isLabelGenerated": true, "isAcceptanceProtocolGenerated": false, "isNotificationGenerated": false, "lastScanId": 0, "lastScan02Id": 0, "lastScan03Id": 0, "lastScanIdWithout18": 0, "currentOwnerDepotCode": "", "isBSign": false, "bSignStateId": "", "bSignPinCode": "", "isCreatedInSophia": true, "customsTariffNumber": "", "itemsNumber": 0, "lastBsignOldCoreSyncDateTime": "1900-01-01T00:00:00.0000000Z", "pinCode": "4285", "customTransportCost": 0, "customTransportCostCurrencyCode": "", "isInvoiced": false, "finalDeliveryAddressId": 0, "isLifeCycleClosed": false, "lifeCycleCloseDateTimeUtc": "1900-00-00T00:00:00.0000000Z",   "lastRedirectionReceiverId": 0, "creationDateTimeUtc": "2022-12-14T20:01:17.0611434Z", "modificationDateTimeUtc": "2022-12-14T20:01:17.9244317Z", "createdByUser": "NETWORK SERVICE",   "modifiedByUser": "NETWORK SERVICE", "id": 3074457347051396780, "isNew": false, "isPersistent": true}]
+  "/Shp650/1.0/events/pus/parcels/{ParcelNr}":
+    parameters:
+      - name: ParcelNr
+        in: path
+        description: Parcel number
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: parcelshop events for parcel
+      description: Returns information about parcel events in parcelshop
+      operationId: getParcelPUSevents
+      tags: ["parcel"]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                description: set of event information in parcelshop for parcel
+                items:
+                  type: object
+                  description: event information in parcelshop for parcel
+                  properties:
+                    code:
+                      type: string
+                      format: (DODEY/DOPKY/DODEI/DODEN/DODEH)
+                      description: track and trace event code - DODEY=Parel collected by the consignee in PUDO, DOPKY=Drop off in PUDO, DODEI=PUDO parcel received, DODEN=Parcel collection in PUDO failed or was refused by consignee, DODEH=Parcel handovered from PUDO to the driver                
