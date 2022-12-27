@@ -1,5 +1,5 @@
 ﻿openapi: 3.0.3
-tags: [name: "version", name: "order", name: "label", name: "parcel"]               
+tags: [name: "version", name: "order", name: "parcel", name: "event", name: "parcelshop", name: "carrier", name: "depot"]            
 
 info:
   title: Integration API
@@ -462,7 +462,7 @@ paths:
       summary: Printing Labels
       description: Parcel labels in PDF form for existing orders
       operationId: printLabels
-      tags: ["label"]
+      tags: ["order"]
       requestBody:
         description: Request contains order identifiers and paper size
         content:
@@ -967,10 +967,10 @@ paths:
         schema:
           type: integer
     get:
-      summary: parcelshop events for parcel
+      summary: Parcelshop events for parcel
       description: Returns information about parcel events in parcelshop
       operationId: getParcelPUSevents
-      tags: ["parcel"]
+      tags: ["parcel", "event"]
       responses:
         "200":
           description: OK
@@ -986,4 +986,590 @@ paths:
                     code:
                       type: string
                       format: (DODEY/DOPKY/DODEI/DODEN/DODEH)
-                      description: track and trace event code - DODEY=Parel collected by the consignee in PUDO, DOPKY=Drop off in PUDO, DODEI=PUDO parcel received, DODEN=Parcel collection in PUDO failed or was refused by consignee, DODEH=Parcel handovered from PUDO to the driver                
+                      description: track and trace event code - DODEY=Parel collected by the consignee in PUDO, DOPKY=Drop off in PUDO, DODEI=PUDO parcel received, DODEN=Parcel collection in PUDO failed or was refused by consignee, DODEH=Parcel handovered from PUDO to the driver
+                    agentLocationCode:
+                      type: string
+                      format: CCNNNNN
+                      description: Parcelshop code
+                    dateTimeUtc:
+                      type: string
+                      format: yy-mm-ddThh:MM:ssZ
+                      description: event date and time
+                    parcelNr:
+                      type: string
+                      format: "[0-9]{14}"
+                      description: Parcel number
+                    soCode:
+                      type: string
+                      format: "[0-9]{3}"
+                      description: SOCODE (service code)
+                    asCode:
+                      type: string
+                      format: "[a-Z 0-9]{3}"
+                      description: ASCODE (additional service code)
+                    creationDateTimeUtc:
+                      type: string
+                      format: yy-mm-ddThh:MM:ssZ
+                      description: date and time of creation in SKDATA2
+                    modificationDateTimeUtc:
+                      type: string
+                      format: yy-mm-ddThh:MM:ssZ
+                      description: date and time of last modification in SKDATA2
+                    receiverDetail:
+                      type: object
+                      description: Information about receiver
+                      properties:
+                        name:
+                          type: string
+                          format: "[a-Z]{2,35}"
+                          description: The first name and the last name of a receiver
+                        street:
+                          type: string
+                          format: "[a-Z0-9 ]{50}"
+                          description: Street of a receiver
+                        houseNr:
+                          type: string
+                          format: "[a-Z0-9/]{6}"
+                          description: House number of a receiver
+                        zip:
+                          type: string
+                          format: "[a-Z0-9]{10}"
+                          description: Zip code of a receiver
+                        city:
+                          type: string
+                          format: "[a-Z0-9]{50}"
+                          description: City of a receiver
+                        countryCode:
+                          type: string
+                          format: "[a-Z]{2}"
+                          description: 2 character ISO code of a receiver country
+                    codDetail:
+                      type: object
+                      description: Information about Cash on Delivery
+                      properties:
+                        amount:
+                          type: number
+                          format: "[0-9.]{20}"
+                          description: Amount of COD
+                        currencyCode:
+                          type: string
+                          format: "[a-Z]{3}"
+                          description: 3 character currency code
+                        paymentType:
+                          type: string
+                          format: "[a-Z]{10}"
+                          description: payment type - Cash, Crossed Cheque, Credit Card, Gateway, Combination
+                    idCheckDetail:
+                      type: object
+                      description: Information about receiver identity check
+                      properties:
+                        type:
+                          type: string
+                          format: "ID_RECORD"
+                        documentType:
+                          type: string
+                          format: (ID_CARD/PASSPORT)
+                          description: type of document necessary for identification
+                        documentNumber:
+                          type: string
+                          format: "[a-Z0-9 ]{2,35}"
+                          description: number of an identification document
+              examples:
+                responseBody:
+                  summary: Response body example - parcelshop events of a parcel
+                  value: [{"code": "DODEI", "agentLocationCode": "SK10495", "dateTimeUtc": "2022-05-04T07:56:35Z", "parcelNr": "06565610444092", "soCode": "329", "asCode": "", "creationDateTimeUtc": "2022-05-04T08:30:53.5966667Z", "modificationDateTimeUtc": "2022-05-04T08:30:56.4633333Z", "receiverDetail": {}, "codDetail": {}, "idCheckDetail": {}, }, {"code": "DODEY", "agentLocationCode": "SK10495", "dateTimeUtc": "2022-05-09T11:29:24Z", "parcelNr": "06565610444092", "soCode": "329", "asCode": "", "creationDateTimeUtc": "2022-05-09T12:15:36.7266667Z", "modificationDateTimeUtc": "2022-05-09T12:15:40.1466667Z", "receiverDetail": {"name": "Koskova", "street": "", "houseNr": "", "zip": "", "city": "", "countryCode": "SK"}, "codDetail": {"amount": 99.5, "currencyCode": "EUR", "paymentType": "card", "transactionCode": "673560" }, "idCheckDetail": { "type": "ID_RECORD", "documentType": "ID_CARD", "documentNumber": "58935", }}]
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                description: timeout
+                properties:
+                  key:
+                    type: string
+                    format: "[a-Z0-9_]{100}"
+                    description: Exception type
+                  message:
+                    type: string
+                    format: "[a-Z0-9_]{1000}"
+                    description: Exception message
+                  httpStatusCode:
+                    type: integer
+                    description: numeric code of an exception
+                  stackTrace:
+                    type: string
+                    description: logged information about exception
+                  params:
+                    type: array
+                    description: array of exception parameters
+              examples:
+                responseBody:
+                  summary: Response body example - exception
+                  value: { "key": "general_exception", "message": "The wait operation timed out", "httpStatusCode": 500, "stackTrace": "null", "params": [] }
+  "/Shp650/1.0/events/pus/modified-since/{sinceDateUtc}/{pageindex}/{pagesize}":
+    parameters:
+      - name: sinceDateUtc
+        in: path
+        description: date and time the events occured from
+        required: true
+        schema:
+          type: string
+          format: "yyyyMMddHHmmss"
+      - name: pageindex
+        in: path
+        description: page index if paging is applied (1 if not)
+        required: true
+        schema:
+          type: integer
+          format: "[0-9]{10}"
+      - name: pagesize
+        in: path
+        description: number of records on page if paging is applied (0 or negative number means paging is not applied)
+        required: true
+        schema:
+          type: integer
+          format: "[0-9]{10}"
+    get:
+      summary: Parcelshop events from given date and time
+      description: Returns information about events in all parcelshops for all parcels from given datetime
+      operationId: getPUSeventsFromDatetime
+      tags: ["event"]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                description: set of event information in parcelshop for parcel
+                items:
+                  type: object
+                  description: event information in parcelshop for parcel
+                  properties:
+                    code:
+                      type: string
+                      format: (DODEY/DOPKY/DODEI/DODEN/DODEH)
+                      description: track and trace event code - DODEY=Parel collected by the consignee in PUDO, DOPKY=Drop off in PUDO, DODEI=PUDO parcel received, DODEN=Parcel collection in PUDO failed or was refused by consignee, DODEH=Parcel handovered from PUDO to the driver
+                    agentLocationCode:
+                      type: string
+                      format: CCNNNNN
+                      description: Parcelshop code
+                    dateTimeUtc:
+                      type: string
+                      format: yy-mm-ddThh:MM:ssZ
+                      description: event date and time
+                    parcelNr:
+                      type: string
+                      format: "[0-9]{14}"
+                      description: Parcel number
+                    soCode:
+                      type: string
+                      format: "[0-9]{3}"
+                      description: SOCODE (service code)
+                    asCode:
+                      type: string
+                      format: "[a-Z 0-9]{3}"
+                      description: ASCODE (additional service code)
+                    creationDateTimeUtc:
+                      type: string
+                      format: yy-mm-ddThh:MM:ssZ
+                      description: date and time of creation in SKDATA2
+                    modificationDateTimeUtc:
+                      type: string
+                      format: yy-mm-ddThh:MM:ssZ
+                      description: date and time of last modification in SKDATA2
+                    receiverDetail:
+                      type: object
+                      description: Information about receiver
+                      properties:
+                        name:
+                          type: string
+                          format: "[a-Z]{2,35}"
+                          description: The first name and the last name of a receiver
+                        street:
+                          type: string
+                          format: "[a-Z0-9 ]{50}"
+                          description: Street of a receiver
+                        houseNr:
+                          type: string
+                          format: "[a-Z0-9/]{6}"
+                          description: House number of a receiver
+                        zip:
+                          type: string
+                          format: "[a-Z0-9]{10}"
+                          description: Zip code of a receiver
+                        city:
+                          type: string
+                          format: "[a-Z0-9]{50}"
+                          description: City of a receiver
+                        countryCode:
+                          type: string
+                          format: "[a-Z]{2}"
+                          description: 2 character ISO code of a receiver country
+                    codDetail:
+                      type: object
+                      description: Information about Cash on Delivery
+                      properties:
+                        amount:
+                          type: number
+                          format: "[0-9.]{20}"
+                          description: Amount of COD
+                        currencyCode:
+                          type: string
+                          format: "[a-Z]{3}"
+                          description: 3 character currency code
+                        paymentType:
+                          type: string
+                          format: "[a-Z]{10}"
+                          description: payment type - Cash, Crossed Cheque, Credit Card, Gateway, Combination
+                    idCheckDetail:
+                      type: object
+                      description: Information about receiver identity check
+                      properties:
+                        type:
+                          type: string
+                          format: "ID_RECORD"
+                        documentType:
+                          type: string
+                          format: (ID_CARD/PASSPORT)
+                          description: type of document necessary for identification
+                        documentNumber:
+                          type: string
+                          format: "[a-Z0-9 ]{2,35}"
+                          description: number of an identification document
+              examples:
+                responseBody:
+                  summary: Response body example - parcelshop events
+                  value: [{"code": "DODEI", "agentLocationCode": "SK20790", "dateTimeUtc": "2022-11-14T11:36:15Z", "parcelNr": "13490018336736", "soCode": "327", "asCode": "", "creationDateTimeUtc": "2022-11-14T16:55:29.969195Z", "modificationDateTimeUtc": "2022-11-15T01:55:17.3058635Z", "receiverDetail": {}, "codDetail": {}, "idCheckDetail": {"type": "PINCODE",     "documentType": "", "documentNumber": "968157"}}, {"code": "DODEI", "agentLocationCode": "SK20676", "dateTimeUtc": "2022-11-14T11:37:12Z", "parcelNr": "06505075556806", "soCode": "327",   "asCode": "", "creationDateTimeUtc": "2022-11-14T16:55:29.937941Z", "modificationDateTimeUtc": "2022-11-15T01:55:17.3137194Z", "receiverDetail": {}, "codDetail": {}, "idCheckDetail": {   "type": "PINCODE", "documentType": "", "documentNumber": "397365" }}, {"code": "DODEI", "agentLocationCode": "SK20528", "dateTimeUtc": "2022-11-14T11:52:04Z", "parcelNr": "06545600361899",   "soCode": "329", "asCode": "", "creationDateTimeUtc": "2022-11-14T17:05:26.3366062Z", "modificationDateTimeUtc": "2022-11-15T02:00:32.753294Z", "receiverDetail": {}, "codDetail": {},     "idCheckDetail": {"type": "PINCODE", "documentType": "", "documentNumber": "_NOPIN_" }}, {"code": "DOPKY", "agentLocationCode": "SK10730", "dateTimeUtc": "2022-11-14T14:52:05Z", "parcelNr": "06505602467465", "soCode": "345", "asCode": "", "creationDateTimeUtc": "2022-11-15T07:05:28.6483824Z", "modificationDateTimeUtc": "2022-11-15T07:05:29.2533333Z", "receiverDetail": {     "name": "Štefan Monika Čeri", "street": "", "houseNr": "", "zip": "", "city": "", "countryCode": "SK" }, "codDetail": {}, "idCheckDetail": {} }]
+  "/Shp650/1.0/pudo/sk":
+    get:
+      summary: List of Parcelshops
+      description: Returns list of all parcelshops and their properties
+      operationId: getPUS
+      tags: ["parcelshop"]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                description: set of parcelshop information
+                items:
+                  type: object
+                  description: parcelshop properties
+                  properties:
+                    pusId:
+                      type: string
+                      format: "[A-Z0-9]{4,10}"
+                      description: parcelshop identifier
+                    oldId:
+                      type: integer
+                      format: "[0-9]{10}"
+                      description: old parcelshop identifier
+                    driverId:
+                      type: integer
+                      format: "[0-9]{10}"
+                      description: courier identifier
+                    variableSymbol:
+                      type: string
+                      format: "[0-9]{10}"
+                      description: Variable symbol assigned to a parcelshop
+                    name:
+                      type: string
+                      format: "[a-Z ]{5,50}"
+                      description: Name of a parcelshop
+                    email:
+                      type: string
+                      format: "[a-Z0-9@._]{5,50}"
+                      description: Email address of a parcelshop
+                    phone:
+                      type: string
+                      format: "(+)[0-9]{1,29}"
+                      description: Phone number of a parcelshop in e.164 format
+                    latitude:
+                      type: number
+                      format: "(-)[0-9.]{53}"
+                      description: geografical position of a parcelshop - latitude
+                    longitude:
+                      type: number
+                      format: "(-)[0-9.]{53}"
+                      description: geografical position of a parcelshop - longitude
+                    state:
+                      type: string
+                      format: (Active/Inactive)
+                      description: Current status of a parcelshop
+                    creationDateTimeUtc:
+                      type: string
+                      format: yy-mm-ddThh:MM:ssZ
+                      description: date and time of creation in SKDATA2
+                    modificationDateTimeUtc:
+                      type: string
+                      format: yy-mm-ddThh:MM:ssZ
+                      description: date and time of last modification in SKDATA2
+                    address:
+                      type: object
+                      description: address of a parcelshop
+                      properties:
+                        street:
+                          type: string
+                          format: "[a-Z0-9 ]{50}"
+                          description: Street of a parcelshop
+                        houseNr:
+                          type: string
+                          format: "[a-Z0-9/]{6}"
+                          description: House number of a parcelshop
+                        zip:
+                          type: string
+                          format: "[a-Z0-9]{10}"
+                          description: Zip code of a parcelshop
+                        city:
+                          type: string
+                          format: "[a-Z0-9]{50}"
+                          description: City of a parcelshop
+                        countryCode:
+                          type: string
+                          format: "[0-9]{3}"
+                          description: 3 numbers ISO code of a parcelshop country
+                    properties:
+                      type: array
+                      description: set of parcelshop properties
+                      items:
+                        type: object
+                        description: characteristic of a parcelshop
+                        properties:
+                          name:
+                            type: string
+                            format: "[a-z_]{50}"
+                            description: name of a property
+                          value:
+                            type: string
+                            format: "[0-9]{10}"
+                            description: value of a property
+              examples:
+                responseBody:
+                  summary: Response body example - list of parcelshops
+                  value: [{"pusId": "SK10015", "oldId": 4463, "driverId": 101570, "variableSymbol": "0650101570", "name": "Pobočka DPD Bratislava", "email": "ompickup650@dpd.sk", "phone": "", "latitude": 48.174301, "longitude": 17.176908, "state": "Inactive", "creationDateTimeUtc": "2022-09-13T18:35:07.3533333Z", "modificationDateTimeUtc": "2022-09-13T18:35:07.3533333Z",   "address": {"street": "Technická", "houseNr": "7", "zip": "82104", "city": "Bratislava", "country": 703 }, "properties": [{"name": "pos_terminal", "value": "0"}, {"name": "max_weight",         "value": "" }, {"name": "max_parcel_count", "value": "" }, {"name": "is_internal", "value": "1" }, {"name": "published", "value": "0" }, {"name": "pickup_allowed", "value": "1" }] }, { "pusId": "SK10006", "oldId": 4538, "driverId": 101764, "variableSymbol": "0650101764", "name": "Mountfield TEST'2", "email": "test@test.com", "phone": "", "latitude": 48.288208, "longitude": 17.269759, "state": "Inactive", "creationDateTimeUtc": "2022-09-13T18:35:07.3533333Z", "modificationDateTimeUtc": "2022-09-13T18:35:07.3533333Z", "address": {"street": "M. R. Štefánika",     "houseNr": "24", "zip": "90201", "city": "Pezinok", "country": 703 }, "properties": [{"name": "pos_terminal", "value": "0" }, {"name": "max_weight", "value": "20000" }, {"name": "max_parcel_count", "value": "20" }, {"name": "is_internal", "value": "0" }, {"name": "published", "value": "0" }, {"name": "pickup_allowed", "value": "1" }] }, {"pusId": "", "oldId": 3883,   "driverId": 101720, "variableSymbol": "0650101720", "name": "Soľná baňa", "email": "palorusovce@azet.sk", "phone": "", "latitude": 48.052993, "longitude": 17.147846, "state": "Deleted",     "creationDateTimeUtc": "2022-09-13T18:35:07.3533333Z", "modificationDateTimeUtc": "2022-09-13T18:35:07.3533333Z", "address": {"street": "Balkánska", "houseNr": "83", "zip": "85110", "city": "Bratislava", "country": 703 }, "properties": [{"name": "pos_terminal", "value": "0" }, {"name": "max_weight", "value": "" }, {"name": "max_parcel_count", "value": "" }, {"name": "is_internal", "value": "0" }, {"name": "published", "value": "0" }, {"name": "pickup_allowed", "value": "0" }] }]
+  "/Shp650/1.0/carriers":
+    parameters:
+      - name: sinceDate
+        in: query
+        description: date and time the carriers active from
+        required: false
+        schema:
+          type: string
+          format: "yyyyMMddHHmmss"
+      - name: onlyActive
+        in: query
+        description: filter to Active status of a carrier
+        required: false
+        schema:
+          type: boolean
+          format: (true/false)
+    get:
+      summary: Carriers from given date and time
+      description: Returns information about carriers active from given datetime
+      operationId: getCarriers
+      tags: ["carrier"]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                description: set of carrier information
+                items:
+                  type: object
+                  description: carrier information
+                  properties:
+                    id:
+                      type: integer
+                      format: "[0-9]{10}"
+                      description: carrier identifier
+                    name:
+                      type: string                   
+                      description: carrier name
+                    location:
+                      type: string
+                      format: Varchar(7)
+                      description: 7 digits depot code the carrier belongs to
+                    pusId:
+                      type: string
+                      format: "[A-Z0-9]{4,10}"
+                      description: parcelshop identifier
+                    comapnyId:
+                      type: string
+                      format: "[0-9]{15}"
+                      description: Identification number of a carrier company
+                    vatId:
+                      type: string
+                      format: "[A-Z0-9]{30}"
+                      description: VAT number of a carrier company
+                    dicId:
+                      type: string
+                      format: Varchar(30)
+                      description: Tax number of a carrier company
+                    isVatPayer:
+                      type: boolean
+                      format: (true/false)
+                      description: If carrier is VAT payer
+                    address:
+                      type: object
+                      description: Carrier address
+                      properties:
+                        id:
+                          type: integer
+                          description: Address identifier in SKDATA2
+                        street:
+                          type: string
+                          format: varchar(35)
+                          description: Street of a carrier address
+                        houseNr:
+                          type: string
+                          format: "[a-Z0-9/]{6}"
+                          description: House number of a carrier address
+                        zip:
+                          type: string
+                          format: "[a-Z0-9]{10}"
+                          description: Zip code of a carrier address
+                        city:
+                          type: string
+                          format: "[a-Z0-9]{50}"
+                          description: City of a carrier address
+                        countryCode:
+                          type: string
+                          format: "[0-9]{3}"
+                          description: 3 numbers ISO code of a carrier country
+                    email:
+                      type: string
+                      format: Varchar(100)
+                      description: Email address of a carrier
+                    phone:
+                      type: string
+                      format: Varchar(30)
+                      description: Phone number of a carrier
+                    active:
+                      type: boolean
+                      format: (true/false)
+                      description: If carrier is Active
+                    type:
+                      type: string
+                      format: Varchar(2)
+                      description: Type of cooperation with carrier - Fr=Franchisor Hl=Výpomoc In=DPD Lh=Linehaul Pa=Paletová preprava St=Štandard No=Neuvedená
+                    bankName:
+                      type: string
+                      description: Name of bank where carrier has an account
+                    bankAccountNumber:
+                      type: string
+                      description: Account number of a carrier
+                    bicId:
+                      type: string
+                      description: BIC of a carrier
+                    creationDateTimeUtc:
+                      type: string
+                      format: yy-mm-ddThh:MM:ssZ
+                      description: date and time of creation in SKDATA2
+                    modificationDateTimeUtc:
+                      type: string
+                      format: yy-mm-ddThh:MM:ssZ
+                      description: date and time of last modification in SKDATA2
+              examples:
+                responseBody:
+                  summary: Response body example - list of carriers
+                  value: [{"id": 1643, "name": "ABC Data", "location": "0160065", "pusId": "", "companyId": "", "vatId": "", "dicId": "", "isVatPayer": true, "address": {"id": 13118782,     "street": "Sosnowiecka", "houseNo": "", "zip": "00000", "city": "Sosnowiec", "country": 703 }, "email": "", "phone": "", "active": false, "type": "In", "bankName": "", "bankAccountNumber": "", "bicId": "", "creationDateTimeUtc": "2017-09-29T08:52:36.453Z", "modificationDateTimeUtc": "2022-05-02T07:43:47.2966363Z" }, {"id": 1644, "name": "AMWAY Slovensko s.r.o.", "location": "0160065", "pusId": "", "companyId": "", "vatId": "", "dicId": "", "isVatPayer": true, "address": {"id": 13118783, "street": "Letná", "houseNo": "3", "zip": "83103", "city": "Bratislava",     "country": 703 }, "email": "", "phone": "", "active": true, "type": "In", "bankName": "", "bankAccountNumber": "", "bicId": "", "creationDateTimeUtc": "2017-09-29T08:52:36.453Z",   "modificationDateTimeUtc": "2017-09-29T08:52:36.453Z" }, {"id": 1645, "name": "AT Computer s.r.o.", "location": "0160065", "pusId": "", "companyId": "", "vatId": "", "dicId": "", "isVatPayer": true, "address": {"id": 13118784, "street": "Tešínska", "houseNo": "1970/56", "zip": "71000", "city": "Ostrava - Slezka", "country": 703 }, "email": "", "phone": "", "active": true, "type": "In", "bankName": "", "bankAccountNumber": "", "bicId": "", "creationDateTimeUtc": "2017-09-29T08:52:36.453Z", "modificationDateTimeUtc": "2017-09-29T08:52:36.453Z" }]
+  "/Shp650/1.0/depots":
+    parameters:
+      - name: onlyActive
+        in: query
+        description: if only active depots should be filtered
+        required: true
+        schema:
+          type: boolean
+          format: (true/false)
+    get:
+      summary: List of depots
+      description: Returns information about depots
+      operationId: getDepots
+      tags: ["depot"]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                description: set of depot information
+                items:
+                  type: object
+                  description: depot information
+                  properties:
+                    id:
+                      type: integer
+                      format: "[0-9]{10}"
+                      description: depot identifier
+                    name:
+                      type: string
+                      format: varchar(35)
+                      description: name of a depot
+                    location:
+                      type: string
+                      format: NNNNNNN
+                      description: 7 digits depot code
+                    address:
+                      type: object
+                      description: address of a depot
+                      properties:
+                        id:
+                          type: integer
+                          description: Address identifier in SKDATA2
+                        street:
+                          type: string
+                          format: varchar(35)
+                          description: Street of a depot address
+                        houseNr:
+                          type: string
+                          format: "[a-Z0-9/]{6}"
+                          description: House number of a depot address
+                        zip:
+                          type: string
+                          format: "[a-Z0-9]{10}"
+                          description: Zip code of a depot address
+                        city:
+                          type: string
+                          format: "[a-Z0-9]{50}"
+                          description: City of a depot address
+                        countryCode:
+                          type: string
+                          format: "[0-9]{3}"
+                          description: 3 numbers ISO code of a depot country
+                    email:
+                      type: string
+                      format: Varchar(100)
+                      description: Email address of a depot
+                    phone:
+                      type: string
+                      format: Varchar(30)
+                      description: Phone number of a depot
+                    active:
+                      type: boolean
+                      format: (true/false)
+                      description: If depot is Active
+                    type:
+                      type: string
+                      format: Varchar(2)
+                      description: Type of cooperation with depot - Fr=Franchisor In=DPD
+                    creationDateTimeUtc:
+                      type: string
+                      format: yy-mm-ddThh:MM:ssZ
+                      description: date and time of creation in SKDATA2
+                    modificationDateTimeUtc:
+                      type: string
+                      format: yy-mm-ddThh:MM:ssZ
+                      description: date and time of last modification in SKDATA2
+              examples:
+                responseBody:
+                  summary: Response body example - list of carriers
+                  value: [{"id": 44, "name": "HUB 065 Dolný Hričov", "location": "0160065", "address": {"id": 13118761, "street": "Na skalu", "houseNo": "504/3", "zip": "01341", "city": "Dolný Hričov", "country": 703 }, "email": "", "phone": "18 373", "active": true, "type": "Int", "creationDateTimeUtc": "2017-09-29T08:51:41.553Z", "modificationDateTimeUtc": "2019-10-30T14:30:08.1433333Z" }, {"id": 45, "name": "Depo 0650 Bratislava", "location": "0160650", "address": {"id": 13118762, "street": "Pri letisku 19020/5 Pharos Park", "houseNo": "", "zip": "82104", "city": "Bratislava Pharos", "country": 703 }, "email": "", "phone": "18 373", "active": true, "type": "Int", "creationDateTimeUtc": "2017-09-29T08:51:41.57Z", "modificationDateTimeUtc": "2022-05-26T06:31:39.1944856Z" }, {"id": 46, "name": "Depo 0651 Zvolen", "location": "0160651", "address": {"id": 13118763, "street": "Trňanská 6", "houseNo": "", "zip": "96001", "city": "Zvolen", "country": 703 }, "email": "", "phone": "18 373", "active": true, "type": "Int", "creationDateTimeUtc": "2017-09-29T08:51:41.6Z", "modificationDateTimeUtc": "2022-06-30T18:35:57.8321707Z" }]
+  
