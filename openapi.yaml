@@ -1,5 +1,5 @@
 ﻿openapi: 3.0.3
-tags: [name: "version", name: "order", name: "parcel", name: "event", name: "parcelshop", name: "carrier", name: "depot"]            
+tags: [name: "version", name: "order", name: "parcel", name: "event", name: "lists", name: "routing", name: "notification"]            
 
 info:
   title: Integration API
@@ -1247,7 +1247,7 @@ paths:
       summary: List of Parcelshops
       description: Returns list of all parcelshops and their properties
       operationId: getPUS
-      tags: ["parcelshop"]
+      tags: ["lists"]
       responses:
         "200":
           description: OK
@@ -1353,9 +1353,18 @@ paths:
                   value: [{"pusId": "SK10015", "oldId": 4463, "driverId": 101570, "variableSymbol": "0650101570", "name": "Pobočka DPD Bratislava", "email": "ompickup650@dpd.sk", "phone": "", "latitude": 48.174301, "longitude": 17.176908, "state": "Inactive", "creationDateTimeUtc": "2022-09-13T18:35:07.3533333Z", "modificationDateTimeUtc": "2022-09-13T18:35:07.3533333Z",   "address": {"street": "Technická", "houseNr": "7", "zip": "82104", "city": "Bratislava", "country": 703 }, "properties": [{"name": "pos_terminal", "value": "0"}, {"name": "max_weight",         "value": "" }, {"name": "max_parcel_count", "value": "" }, {"name": "is_internal", "value": "1" }, {"name": "published", "value": "0" }, {"name": "pickup_allowed", "value": "1" }] }, { "pusId": "SK10006", "oldId": 4538, "driverId": 101764, "variableSymbol": "0650101764", "name": "Mountfield TEST'2", "email": "test@test.com", "phone": "", "latitude": 48.288208, "longitude": 17.269759, "state": "Inactive", "creationDateTimeUtc": "2022-09-13T18:35:07.3533333Z", "modificationDateTimeUtc": "2022-09-13T18:35:07.3533333Z", "address": {"street": "M. R. Štefánika",     "houseNr": "24", "zip": "90201", "city": "Pezinok", "country": 703 }, "properties": [{"name": "pos_terminal", "value": "0" }, {"name": "max_weight", "value": "20000" }, {"name": "max_parcel_count", "value": "20" }, {"name": "is_internal", "value": "0" }, {"name": "published", "value": "0" }, {"name": "pickup_allowed", "value": "1" }] }, {"pusId": "", "oldId": 3883,   "driverId": 101720, "variableSymbol": "0650101720", "name": "Soľná baňa", "email": "palorusovce@azet.sk", "phone": "", "latitude": 48.052993, "longitude": 17.147846, "state": "Deleted",     "creationDateTimeUtc": "2022-09-13T18:35:07.3533333Z", "modificationDateTimeUtc": "2022-09-13T18:35:07.3533333Z", "address": {"street": "Balkánska", "houseNr": "83", "zip": "85110", "city": "Bratislava", "country": 703 }, "properties": [{"name": "pos_terminal", "value": "0" }, {"name": "max_weight", "value": "" }, {"name": "max_parcel_count", "value": "" }, {"name": "is_internal", "value": "0" }, {"name": "published", "value": "0" }, {"name": "pickup_allowed", "value": "0" }] }]
   "/Shp650/1.0/carriers":
     parameters:
+      - name: ids
+        in: query
+        description: list of carrier identifiers
+        required: false
+        schema:
+          type: array
+          items:
+            type: integer
+            description: carrier identifier
       - name: sinceDate
         in: query
-        description: date and time the carriers active from
+        description: date and time the carriers are active from
         required: false
         schema:
           type: string
@@ -1368,10 +1377,10 @@ paths:
           type: boolean
           format: (true/false)
     get:
-      summary: Carriers from given date and time
-      description: Returns information about carriers active from given datetime
+      summary: Carriers filtered from given date and time or state (active/inactive) or by identifiers - filter is not mandatory
+      description: Returns information about carriers filtered by query after the main path - for instance ?ids=&sinceDate=2022-01-14T18:27:48.843Z&onlyActive=false - query can be ommited and then the whole list of carriers is returned.
       operationId: getCarriers
-      tags: ["carrier"]
+      tags: ["lists"]
       responses:
         "200":
           description: OK
@@ -1398,7 +1407,7 @@ paths:
                     pusId:
                       type: string
                       format: "[A-Z0-9]{4,10}"
-                      description: parcelshop identifier
+                      description: Identifier of a parcelshop served by carrier
                     comapnyId:
                       type: string
                       format: "[0-9]{15}"
@@ -1477,7 +1486,7 @@ paths:
                       description: date and time of last modification in SKDATA2
               examples:
                 responseBody:
-                  summary: Response body example - list of carriers
+                  summary: Response body example - filtered list of carriers
                   value: [{"id": 1643, "name": "ABC Data", "location": "0160065", "pusId": "", "companyId": "", "vatId": "", "dicId": "", "isVatPayer": true, "address": {"id": 13118782,     "street": "Sosnowiecka", "houseNo": "", "zip": "00000", "city": "Sosnowiec", "country": 703 }, "email": "", "phone": "", "active": false, "type": "In", "bankName": "", "bankAccountNumber": "", "bicId": "", "creationDateTimeUtc": "2017-09-29T08:52:36.453Z", "modificationDateTimeUtc": "2022-05-02T07:43:47.2966363Z" }, {"id": 1644, "name": "AMWAY Slovensko s.r.o.", "location": "0160065", "pusId": "", "companyId": "", "vatId": "", "dicId": "", "isVatPayer": true, "address": {"id": 13118783, "street": "Letná", "houseNo": "3", "zip": "83103", "city": "Bratislava",     "country": 703 }, "email": "", "phone": "", "active": true, "type": "In", "bankName": "", "bankAccountNumber": "", "bicId": "", "creationDateTimeUtc": "2017-09-29T08:52:36.453Z",   "modificationDateTimeUtc": "2017-09-29T08:52:36.453Z" }, {"id": 1645, "name": "AT Computer s.r.o.", "location": "0160065", "pusId": "", "companyId": "", "vatId": "", "dicId": "", "isVatPayer": true, "address": {"id": 13118784, "street": "Tešínska", "houseNo": "1970/56", "zip": "71000", "city": "Ostrava - Slezka", "country": 703 }, "email": "", "phone": "", "active": true, "type": "In", "bankName": "", "bankAccountNumber": "", "bicId": "", "creationDateTimeUtc": "2017-09-29T08:52:36.453Z", "modificationDateTimeUtc": "2017-09-29T08:52:36.453Z" }]
   "/Shp650/1.0/depots":
     parameters:
@@ -1492,7 +1501,7 @@ paths:
       summary: List of depots
       description: Returns information about depots
       operationId: getDepots
-      tags: ["depot"]
+      tags: ["lists"]
       responses:
         "200":
           description: OK
@@ -1570,6 +1579,573 @@ paths:
                       description: date and time of last modification in SKDATA2
               examples:
                 responseBody:
-                  summary: Response body example - list of carriers
+                  summary: Response body example - list of depots
                   value: [{"id": 44, "name": "HUB 065 Dolný Hričov", "location": "0160065", "address": {"id": 13118761, "street": "Na skalu", "houseNo": "504/3", "zip": "01341", "city": "Dolný Hričov", "country": 703 }, "email": "", "phone": "18 373", "active": true, "type": "Int", "creationDateTimeUtc": "2017-09-29T08:51:41.553Z", "modificationDateTimeUtc": "2019-10-30T14:30:08.1433333Z" }, {"id": 45, "name": "Depo 0650 Bratislava", "location": "0160650", "address": {"id": 13118762, "street": "Pri letisku 19020/5 Pharos Park", "houseNo": "", "zip": "82104", "city": "Bratislava Pharos", "country": 703 }, "email": "", "phone": "18 373", "active": true, "type": "Int", "creationDateTimeUtc": "2017-09-29T08:51:41.57Z", "modificationDateTimeUtc": "2022-05-26T06:31:39.1944856Z" }, {"id": 46, "name": "Depo 0651 Zvolen", "location": "0160651", "address": {"id": 13118763, "street": "Trňanská 6", "houseNo": "", "zip": "96001", "city": "Zvolen", "country": 703 }, "email": "", "phone": "18 373", "active": true, "type": "Int", "creationDateTimeUtc": "2017-09-29T08:51:41.6Z", "modificationDateTimeUtc": "2022-06-30T18:35:57.8321707Z" }]
-  
+  "/Shp650/1.0/couriers":
+    parameters:
+      - name: sinceDate
+        in: query
+        description: date and time the couriers are active from
+        required: false
+        schema:
+          type: string
+          format: "yyyyMMddHHmmss"
+    get:
+      summary: Couriers filtered from given date and time - filter is not mandatory
+      description: Returns information about couriers filtered by query after the main path - for instance ?sinceDate=2019-01-11T12:37:00.000 - query can be ommited and then the whole list of couriers is returned.
+      operationId: getCouriers
+      tags: ["lists"]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                description: set of courier information
+                items:
+                  type: object
+                  description: courier information
+                  properties:
+                    id:
+                      type: integer
+                      format: "[0-9]{10}"
+                      description: courier identifier in system SKDATA2
+                    driverId:
+                      type: integer
+                      format: "[0-9]{10}"
+                      description: courier identifier in old system SKDATA1
+                    carrierId:
+                      type: integer
+                      format: "[0-9]{10}"
+                      description: carrier identifier in system SKDATA2 - courier belongs to the carrier
+                    carrierName:
+                      type: string
+                      description: name of a related carrier
+                    firstName:
+                      type: string
+                      format: Varchar(100)
+                      description: The first name of a courier
+                    lastName:
+                      type: string
+                      format: Varchar(100)
+                      description: The last name of a courier
+                    pusId:
+                      type: string
+                      format: CCNNNNN
+                      description: Identifier of a parcelshop served by courier
+                    location:
+                      type: string
+                      format: Varchar(7)
+                      description: 7 digits depot code the carrier belongs to
+                    active:
+                      type: boolean
+                      format: (true/false)
+                      description: If courier is Active
+                    variableSymbol:
+                      type: string
+                      format: DDDIIIIII
+                      description: Variable symbol assigned to courier - DDD=last 3 digits of depot code, IIIIII=identifier in old system SKDATA1
+                    mobilePhone:
+                      type: string
+                      format: Varchar(100)
+                      description: Mobile phone number of a courier
+                    homePhone:
+                      type: string
+                      format: Varchar(100)
+                      description: Phone number of a courier
+                    email:
+                      type: string
+                      format: Varchar(100)
+                      description: Email address of a courier
+                    attributes:
+                      type: object
+                      description: Set of courier attributes
+                      properties:
+                        hasMdu:
+                         type: boolean
+                         format: (true/false)
+                         description: If courier has a mobile device
+                        hasTerminal:
+                          type: boolean
+                          format: (true/false)
+                          description: If courier has a mobile payment terminal
+                        nextDayDeposit:
+                          type: boolean
+                          format: (true/false)
+                          description: If courier has a possibility to deposit cash one time in two days, not every day
+                    credentials:
+                      type: object
+                      description: Courier credentials to other systems (COD, CashApp)
+                      properties:
+                        login: 
+                          type: string
+                          description: The same as variable symbol, but witout leading zero
+                        passwordHash:
+                          type: string
+                          description: The same as identifier in old system SKDATA1
+                    creationDateTimeUtc:
+                      type: string
+                      format: yy-mm-ddThh:MM:ssZ
+                      description: date and time of creation in SKDATA2
+                    modificationDateTimeUtc:
+                      type: string
+                      format: yy-mm-ddThh:MM:ssZ
+                      description: date and time of last modification in SKDATA2
+              examples:
+                responseBody:
+                  summary: Response body example - list of couriers
+                  value: [{ "id": 5671, "driverId": 101245, "carrierId": 1768, "carrierName": "Michal Mistrík", "firstName": "Michal", "lastName": "Mistrík", "pusId": "", "location": "0160650", "active": false, "variableSymbol": "0650101245", "mobilePhone": "0911227055", "homePhone": "0911227055", "email": "", "attributes": {"hasMdu": false, "hasTerminal": false,     "nextDayDeposit": false }, "credentials": {}, "creationDateTimeUtc": "2011-12-06T04:33:14.0666667Z", "modificationDateTimeUtc": "2018-12-06T19:57:11.8233333Z" }, {"id": 5641, "driverId": 103188, "carrierId": 1872, "carrierName": "MIRONE s.r.o.", "firstName": "Šimko", "lastName": "Michal", "pusId": "", "location": "0160650", "active": false, "variableSymbol": "0650103188",   "mobilePhone": "+42125435", "homePhone": "", "email": "fdf", "attributes": {"hasMdu": false, "hasTerminal": false, "nextDayDeposit": false }, "credentials": {"login": "650103188",     "passwordHash": "103188" }, "creationDateTimeUtc": "2011-12-06T04:33:14.0666667Z", "modificationDateTimeUtc": "2022-06-20T07:43:18.8442783Z" }, {"id": 2638, "driverId": 100049, "carrierId": 2005, "carrierName": "Karasova Anna", "firstName": "Marian", "lastName": "Michalčo", "pusId": "", "location": "0160652", "active": false, "variableSymbol": "0652100049", "mobilePhone": "0915792040", "homePhone": "0905819486", "email": "", "attributes": {"hasMdu": false, "hasTerminal": false, "nextDayDeposit": false }, "credentials": {}, "creationDateTimeUtc": "2017-09-29T08:53:04.25Z", "modificationDateTimeUtc": "2022-05-03T10:55:41.5533333Z" }]
+  "/Shp650/1.0/devices":
+    parameters:
+      - name: type
+        in: query
+        description: type of a device
+        required: false
+        schema:
+          type: string
+          format: ("Apc"/"BNB"/"Cam"/"CD"/"Cli"/"Con"/"CRW"/"Dok"/"DRW"/"DVD"/"Fax"/"HDB"/"HDD"/"Key"/"Kol"/"KVM"/"MDH"/"Mdm"/"MDS"/"MDU"/"Mon"/"Mou"/"Mul"/"Ntb"/"PC"/"PDA"/"POS"/"Pow"/"Prj"/"Prn"/"PSV"/"RcI"/"Rck"/"Rep"/"Rou"/"SAS"/"ScP"/"SFP"/"SIM"/"Sof"/"SP"/"SPC"/"svr"/"SWe"/"Swi"/"Tbl"/"Tel"/"Ter"/"TS"/"USM"/"Vac"/"Val"/"WAP"/"WPS"/"WRo"/"Zdr")
+          description: Apc=Backup power supply, BNB=notebook batery, Cam=Camera, CD=CD-ROM, Cli=Thin client, Con=Container, CRW=CD-RW, Dok=Docking station, DRW=DVD-RW, DVD=DVD-ROM, Fax=Fax, HDB=External HDD (BOX), HDD=harddisk, Key=Keyboard, Kol=Cradle, KVM=KVM, MDH=MDU Cradle (HHP), Mdm=Modem, MDS=MDU Cradle (Symbol), MDU=Mobile Device Unit, Mon=Monitor, Mou=Mouse, Mul=Multidevice (print, copy, scanner), Ntb=Notebook, PC=Desktop PC, PDA=PDA pickup service, POS=Payment Terminal POS, Pow=Power supply, Prj=Projector, Prn=Printer, PSV=Print Server, RcI=Rack circuit breaker, Rck=Rack, Rep=Speakers, Rou=Router, SAS=SAS disk, ScP=Scan Pistol Cradle, SFP=SFP, SIM=SIM card, Sof=Software, SP=Scan Pistol, SPC=Scan PC, svr=Server, SWe=electronic scale, Swi=Switch, Tbl=Tablet, Tel=Telephone, Ter=Termoprinter, TS=Tape storage, USM=USB modem, Vac=vacuum cleaner, Val=Roller belt, WAP=WiFi Access point, WPS=Wifi Print Server, WRo=WiFi Router, Zdr=Backup power supply
+    get:
+      summary: Devices filtered by type of a device - filter is not mandatory
+      description: Returns information about devices filtered by query after the main path - for instance ?type=POS - query can be ommited and then the whole list of devices is returned.
+      operationId: getDevices
+      tags: ["lists"]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                description: set of device information
+                items:
+                  type: object
+                  description: device information
+                  properties:
+                    id:
+                      type: integer
+                      format: "[0-9]{10}"
+                      description: device identifier in system SKDATA2
+                    type:
+                      type: string
+                      format: ("Apc"/"BNB"/"Cam"/"CD"/"Cli"/"Con"/"CRW"/"Dok"/"DRW"/"DVD"/"Fax"/"HDB"/"HDD"/"Key"/"Kol"/"KVM"/"MDH"/"Mdm"/"MDS"/"MDU"/"Mon"/"Mou"/"Mul"/"Ntb"/"PC"/"PDA"/"POS"/"Pow"/"Prj"/"Prn"/"PSV"/"RcI"/"Rck"/"Rep"/"Rou"/"SAS"/"ScP"/"SFP"/"SIM"/"Sof"/"SP"/"SPC"/"svr"/"SWe"/"Swi"/"Tbl"/"Tel"/"Ter"/"TS"/"USM"/"Vac"/"Val"/"WAP"/"WPS"/"WRo"/"Zdr")
+                      description: Apc=Backup power supply, BNB=notebook batery, Cam=Camera, CD=CD-ROM, Cli=Thin client, Con=Container, CRW=CD-RW, Dok=Docking station, DRW=DVD-RW, DVD=DVD-ROM, Fax=Fax, HDB=External HDD (BOX), HDD=harddisk, Key=Keyboard, Kol=Cradle, KVM=KVM, MDH=MDU Cradle (HHP), Mdm=Modem, MDS=MDU Cradle (Symbol), MDU=Mobile Device Unit, Mon=Monitor, Mou=Mouse, Mul=Multidevice (print, copy, scanner), Ntb=Notebook, PC=Desktop PC, PDA=PDA pickup service, POS=Payment Terminal POS, Pow=Power supply, Prj=Projector, Prn=Printer, PSV=Print Server, RcI=Rack circuit breaker, Rck=Rack, Rep=Speakers, Rou=Router, SAS=SAS disk, ScP=Scan Pistol Cradle, SFP=SFP, SIM=SIM card, Sof=Software, SP=Scan Pistol, SPC=Scan PC, svr=Server, SWe=electronic scale, Swi=Switch, Tbl=Tablet, Tel=Telephone, Ter=Termoprinter, TS=Tape storage, USM=USB modem, Vac=vacuum cleaner, Val=Roller belt, WAP=WiFi Access point, WPS=Wifi Print Server, WRo=WiFi Router, Zdr=Backup power supply
+                    name:
+                      type: string
+                      format: varchar(100)
+                      description: Model name of a device
+                    brand:
+                      type: string
+                      format: varchar(100)
+                      description: Brand name of a device
+                    deviceAttributes:
+                      type: object
+                      description: attributes of a device
+                      properties:
+                        serialNo:
+                          type: string
+                          format: varchar(100)
+                        bic:
+                          type: string
+                          format: varchar(11)
+                          description: Swift code of a related bank
+                        terminalId:
+                          type: string
+                          format: varchar(20)
+                          description: POS termina identification number
+                        operationStartPeriod:
+                          type: string
+                          format: YYYYMM
+                          description: Year and month when device was introduced to using
+                    usedByCourier:
+                      type: array
+                      description: List of couriers that use the device
+                      items:
+                        type: object
+                        description: Information about courier
+                        properties:
+                          id:
+                            type: integer
+                            description: Courier identifier in system SKDATA2
+                          courierId:
+                            type: integer
+                            description: Courier identifier in old system SKDATA1
+                          fromDateTime:
+                            type: string
+                            format: "yyyy-MM-dd hh:mm:ss"
+                            description: Date and time courier uses the device from
+                          toDateTime:
+                            type: string
+                            format: "yyyy-MM-dd hh:mm:ss"
+                            description: Date and time courier uses the device to
+                          stateId:
+                            type: string
+                            format: (Valid/Invalid/Deleted)
+                            description: Status of relation between device and courier
+                    usedByCarrier:
+                      type: array
+                      description: List of carriers that use the device
+                      items:
+                        type: object
+                        description: Information about carrier
+                        properties:
+                          id:
+                            type: integer
+                            description: Carrier identifier in system SKDATA2
+                          courierId:
+                            type: integer
+                            description: Carrier identifier in old system SKDATA1
+                          fromDateTime:
+                            type: string
+                            format: "yyyy-MM-dd hh:mm:ss"
+                            description: Date and time carrier uses the device from
+                          toDateTime:
+                            type: string
+                            format: "yyyy-MM-dd hh:mm:ss"
+                            description: Date and time carrier uses the device to
+                          stateId:
+                            type: string
+                            format: (Valid/Invalid/Deleted)
+                            description: Status of relation between device and carrier
+                    assignedToDepot:
+                      type: array
+                      description: List of depots the device is assigned to
+                      items:
+                        type: object
+                        description: Information about depot
+                        properties:
+                          id:
+                            type: integer
+                            description: Depot identifier in system SKDATA2
+                          location:
+                            type: string
+                            format: NNNNNNN
+                            description: 7 digits Depot code
+                          fromDateTime:
+                            type: string
+                            format: "yyyy-MM-dd hh:mm:ss"
+                            description: Date and time depot uses the device from
+                          toDateTime:
+                            type: string
+                            format: "yyyy-MM-dd hh:mm:ss"
+                            description: Date and time depot uses the device to
+                          stateId:
+                            type: string
+                            format: (Valid/Invalid/Deleted)
+                            description: Status of relation between device and depot
+                    creationDateTimeUtc:
+                      type: string
+                      format: yy-mm-ddThh:MM:ssZ
+                      description: date and time of creation in SKDATA2
+                    modificationDateTimeUtc:
+                      type: string
+                      format: yy-mm-ddThh:MM:ssZ
+                      description: date and time of last modification in SKDATA2
+                    stateId:
+                      type: string
+                      format: (Valid/Invalid/Deleted)
+                      description: Status of a device
+              examples:
+                responseBody:
+                  summary: Response body example - list of devices
+                  value: [{"id": 5137, "type": "POS", "name": "V240m", "brand": "VeriFone", "deviceAttributes": {"serialNo": "390436812", "bic": "TATRSKBX", "terminalId": "10067577",     "operationStartPeriod": "202211" }, "usedByCourier": [{"id": 3734, "courierId": 9382, "fromDateTime": "2022-12-01 00:00:00", "toDateTime": "", "stateId": "" }], "usedByCarrier": [{"id": 3398, "carrierId": 4640, "fromDateTime": "2022-12-01 00:00:00", "toDateTime": "", "stateId": "" }], "assignedToDepot": [{"id": 5216, "location": "0160670", "fromDateTime": "2022-11-22 00:00:00",   "toDateTime": "", "stateId": "" }], "creationDateTimeUtc": "2022-11-22T09:15:52.9565826Z", "modificationDateTimeUtc": "2022-11-22T09:15:52.9565826Z", "stateId": "Valid" }, {"id": 1129,   "type": "Zdr", "name": "Smart-UPS 1000VA LCD 230V", "brand": "APC", "deviceAttributes": {"serialNo": "SAS1307111249", "bic": "", "terminalId": "", "operationStartPeriod": "" },   "usedByCourier": [], "usedByCarrier": [], "assignedToDepot": [], "creationDateTimeUtc": "2017-09-29T08:55:15.92Z", "modificationDateTimeUtc": "2017-09-29T08:55:15.92Z", "stateId": "Valid" }, {"id": 1642, "type": "Apc", "name": "Battery replacement kit RBC48", "brand": "APC", "deviceAttributes": {"serialNo": "S7A1612L07060", "bic": "", "terminalId": "",     "operationStartPeriod": "" }, "usedByCourier": [], "usedByCarrier": [], "assignedToDepot": [], "creationDateTimeUtc": "2017-09-29T08:55:21.03Z", "modificationDateTimeUtc": "2017-09-29T08:55:21.03Z", "stateId": "Valid" }]
+  "/Shp650/1.0/countries":
+    get:
+      summary: List of countries
+      description: Returns information about countries
+      operationId: getCountries
+      tags: ["lists"]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                description: set of country information
+                items:
+                  type: object
+                  description: country information
+                  properties:
+                    code:
+                      type: string
+                      format: CC
+                      description: 2 character country code
+                    name:
+                      type: string
+                      format: varchar(50)
+                      description: Name of a country
+                    isoNumericCountryCode:
+                      type: integer
+                      description: ISO numeric country code
+                    isoAlpha3CountryCode:
+                      type: string
+                      description: ISO 3 character country code
+                    currencyCode:
+                      type: string
+                      format: CCC
+                      description: 3 character code of a currency used in a country
+                    isEUMember:
+                      type: boolean
+                      format: (true/false)
+                      description: If a country is a member of European Union
+              examples:
+                responseBody:
+                  summary: Response body example - list of countries
+                  value: [{"code": "AD", "name": "ANDORRA", "isoNumericCountryCode": 20, "isoAlpha3CountryCode": "AND", "currencyCode": "EUR", "isEUMember": false }, {"code": "AE", "name": "UNITED ARAB EMIRATES", "isoNumericCountryCode": 784, "isoAlpha3CountryCode": "ARE", "currencyCode": "AED", "isEUMember": false }, {"code": "AF", "name": "AFGHANISTAN",   "isoNumericCountryCode": 4, "isoAlpha3CountryCode": "AFG", "currencyCode": "AFN", "isEUMember": false }]
+  "/Shp650/1.0/routing/calculate":
+    post:
+      summary: Calculation of routing
+      description: Returns routing calculation for shipment parameters in request
+      operationId: routingCalculation
+      tags: ["routing"]
+      requestBody:
+        description: Request includes input parameters for routing calculation
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                originDepotCode:
+                  type: string
+                  format: NNNNNNN
+                  description: 7 digits depot code related with sender
+                destinationPostCode:
+                  type: string
+                  format: "[a-Z0-9]{10}"
+                  description: Zip code of a receiver
+                soCode:
+                  type: string
+                  format: NNN
+                  description: 3 digits service set (SO) code
+                date:
+                  type: string
+                  format: "yyyy-MM-ddThh:mm:ss.lllZ"
+                  description: date and time to which the routing calculation is relevant
+                destinationCountryCode:
+                  type: string
+                  format: CC
+                  description: 2 character country code of a receiver
+            examples:
+              requestBody1: 
+                summary: Request body example - valid
+                value: {originDepotCode: "0160653", destinationPostCode: "4817ZN", soCode: "101", date: "2022-06-15T08:12:20.000Z", destinationCountryCode: "NL" }
+              requestBody2: 
+                summary: Request body example - invalid (AS code missing)
+                value: {originDepotCode: "0160653", destinationPostCode: "4817ZN", soCode: "401", date: "2022-06-15T08:12:20.000Z", destinationCountryCode: "NL" }
+      responses:
+        "200":
+          description: Routing calculation successful.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  businessUnitCode:
+                    type: string
+                    format: NNN
+                    description: 3 digit destination business unit code - 001=DPD Germany, 002=Chronopost France, 003=DPD Greece, 004=PostNord Sweden, 005=DPD RU, 006=PostNord Norway, 007=PostNord Finland, 008=GeoPost International, 009=PostNord Denmark, 010=DPD Netherlands, 011=DPD UK, 012=GeoPost SA, 013=Vietnam Posts & Telecommunicat, 014=DPD Austria, 015=DPD Czech Republic, 016=DPD Slovakia, 017=DPD Hungary, 018=GeoPost Bulgaria, 019=Estafeta Mexicana, 020=SEUR, 021=DPD Poland, 022=La Poste Tunisienne, 023=BRT, 024=Yurtici Kargo Servisi, 025=DPD Kazakhstan, 026=DPD Slovenia, 027=Lagermax (Serbia), 028=DPD Croatia, 029=Lagermax BiH, 030=DPD Portugal, 031=DPD Estonia, 032=DPD Lithuania, 033=DPD Latvia, 034=DPD Belgium, 035=DPD Luxembourg, 036=DPD Switzerland, 037=Pallet network, 038=DPD France, 039=Colissimo, 040=DPD Belarus, 041=DPD Romania, 042=DPD Ukraine, 043=DPD Laser South Africa, 044=DTDC Cargo & Courier, 045=PostNord International, 046=DPD Ireland, 047=Nova Poshta, 048=International Express, 049=DPDgroup Headquarters, 050=Tigers, 051=Pickup Services, 052=Stuart, 053=Chronopost France UK Gateway, 054=Lenton China, 055=Biologistic, 056=Primetime Austria, 057=Asendia US, 058=Chronopost International Morocco, 059=Asendia Group, 060=Jadlog Logistica S.A., 061=Biocair, 062=Aramex, 063=DPD Argentina
+                  businessUnitAplhaString:
+                    type: string
+                    format: CCC
+                    description: Label code of a destination business unit
+                  networkCode:
+                    type: string
+                    format: NNN
+                    description: Network code of a destination business unit
+                  networkPlanID:
+                    type: integer
+                    description: Identifier of a georouting network plan
+                  destinatioDepotCountryCode:
+                    type: string
+                    format: CC
+                    description: 2 character destination country code
+                  injectionCode:
+                    type: string
+                    format: varchar(9)
+                    description: Georouting injection code
+                  networkplanList:
+                    type: array
+                    description: set of codes
+                    items:
+                      type: string
+                      format: NNNNNN
+                  originBusinessUnitCode:
+                    type: string
+                    format: NNN
+                    description: Business unit of a sender
+                  originCountryCode:
+                    type: string
+                    format: CC
+                    description: 2 character country code of a sender
+                  originDepotGroup:
+                    type: string
+                  destinationDepotGroup:
+                    type: string
+                  destinationDepotCode:
+                    type: string
+                    format: NNNNNNN
+                    description: 7 digit depot code of a destination depot
+                  destinationDepotString:
+                    type: string
+                    format: NNNN
+                    description: 4 digit depot code of a destination depot
+                  sSort:
+                    type: string
+                  partnerCode:
+                    type: string
+                  oSort:
+                    type: string
+                  cSort:
+                    type: string
+                  dSort:
+                    type: string
+                  barcodeId:
+                    type: string
+                  serviceText:
+                    type: string
+                  serviceMark:
+                    type: string
+                  version:
+                    type: string
+                  canRoute:
+                    type: boolean
+                  errorsAndWarnings:
+                    type: array
+                    items:
+                      type: string
+              examples:
+                responseBody:
+                  summary: Response body example - routing calculated
+                  value: {"businessUnitCode": "010", "businessUnitAplhaString": "DPD", "networkCode": "528", "networkPlanID": 0, "destinatioDepotCountryCode": "NL", "injectionCode": "", "networkplanList": ["000003", "002002", "002027", "002029", "002057", "002077", "002084", "002086", "002100", "002101", "002103", "002105", "002107", "002111", "002114", "002115", "002116", "002123", "002124", "002125", "002127", "002135", "002137", "002147", "002148", "002151", "002164", "002175", "002601", "026002", "038001"], "originBusinessUnitCode": "016",   "originCountryCode": "SK", "originDepotGroup": "", "destinationDepotGroup": "", "destinationDepotCode": "0100525", "destinationDepotString": "0525", "sSort": "", "partnerCode": "", "oSort": "", "cSort": "", "dSort": "3_P", "barcodeId": "%", "serviceText": "D", "serviceMark": "", "version": "22110713", "canRoute": true, "errorsAndWarnings": ["Info: DestinationNetworkCode je null, alebo prázdny", "Info: Validácia úspešná na R0", "Info: nenájdený záznam v R1DBU (R1_3 - network)", "Info: R1DBU úspešne ukončený (krok R1_4)", "Info: R2Route úspešne ukončený (krok R2_2)",   "Info: Služba akreditovaná", "Info: R3OSort úspešne ukončený (krok R3_1) bez výstupného OSort parametra", "Info: R4CSort úspešne ukončený (krok R4_1) bez výstupného CSort parametra",     "Info: R5DSort úspešne ukončený (krok R5_1) s výstupným DSort parametrom", "Info: Routing úspešne ukončený"] }
+        "400":
+          description: Routing calculation was not successful.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  key:
+                    type: string
+                  message:
+                    type: string
+                  httpStatusCode:
+                    type: integer
+                  stackTrace:
+                    type: string
+              examples:
+                responseBody:
+                  summary: Response body example - routing calculated
+                  value: {"key": "error_as_missing", "message": "AS code missing", "httpStatusCode": 400, "stackTrace": "   at Dpd.GeoPostGeoRouting.RoutingInputValidator.<CalculateServiceTextBasedOnSoAndAsCodeAsync>d__23.MoveNext() in C:\\Work\\DPD\\Source\\Common\\GeoPostGeoRouting\\Dpd.GeoPostGeoRouting\\Validators\\RoutingInputValidator.SoAsCodeCalculator.cs:line 29\r\n--- End of stack trace from previous location where exception was thrown ---\r\n ...", "params": []}
+  "/Shp650/1.0/notifications":
+    post:
+      summary: Sending Ad Hoc notification
+      description: Creates notification request and returns notification request identifier in system SKDATA2
+      operationId: sendNotification
+      tags: ["notification"]
+      requestBody:
+        description: Request includes parameters of a notification
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                notificationId:
+                  type: integer
+                  description: Notification identifier in SKDATA2, for new value is 0
+                deliveryType:
+                  type: string
+                  format: (Email/SMS)
+                  description: type of message
+                subject:
+                  type: string
+                  description: Subject of an email message
+                recipient:
+                  type: string
+                  format: ("[a-Z0-9@._]{5,50}"/"(+)[0-9]{1,29}")
+                  description: Email address or mobile phone number
+                content:
+                  type: string
+                  description: body of a message
+                state:
+                  type: string
+                  description: State is not known
+                errorMessage:
+                  type: string
+            examples:
+              requestBody: 
+                summary: Notification request example
+                value: {notificationId: 0, deliveryType: "Email", subject: "Testovacia správa", recipient: "michal.valovic@fores.group", content: "Telo testovacej správy...", state: "", errorMessage: ""}
+      responses:
+        "200":
+          description: Notification request created.
+          content:
+            application/json:
+              schema:
+                type: integer
+                description: Identifier of a notification request in system SKDATA2
+              examples:
+                responseBody:
+                  summary: Response body example - notification request created with identifier in response
+                  value: 6148914691953202170
+  "/Shp650/1.0/notifications-from-template":
+    post:
+      summary: Sending Ad Hoc notification from template
+      description: Creates notification request with using one of the templates defined in system SKDATA2 and returns notification request identifier in system SKDATA2
+      operationId: sendNotificationFromTemplate
+      tags: ["notification"]
+      requestBody:
+        description: Request includes parameters of a notification
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                templateId:
+                  type: integer
+                  description: Identifier of an existing notification template in system SKDATA2
+                deliveryType:
+                  type: string
+                  format: (Email/SMS)
+                  description: type of message
+                recipient:
+                  type: string
+                  format: ("[a-Z0-9@._]{5,50}"/"(+)[0-9]{1,29}")
+                  description: Email address or mobile phone number
+                parameters:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    login:
+                      type: string
+                    password:
+                      type: string
+                    parameters:
+                      type: array
+                      description: parameter values are included in the message body
+                      items:
+                        type: string
+            examples:
+              requestBody1: 
+                summary: Notification request example for new customer registration template
+                value: {templateId: 176, deliveryType: "Email", recipient: "michal.testovic@fores.group", parameters: {name: "Test Testovaci", login: "test", password: "test", parameters: ["https://google.sk"]}}
+              requestBody2: 
+                summary: Notification request example for new administrator registration template
+                value: {templateId: 177, deliveryType: "Email", recipient: "michal.testovic@fores.group", parameters: {name: "Test Testovaci", login: "test", password: "test", parameters: ["https://google.sk"] }}
+              requestBody3: 
+                summary: Notification request example = information about possibility to create configuration
+                value: {"templateId": 238, "deliveryType": "Email", "recipient": "michal.testovic@fores.group", "parameters": {"parameters": ["https://onboard.dpd.sk/registration?key=6Jwwsew1eD0SLLeYaBWs7ro9w9KxnC" ]}}
+      responses:
+        "200":
+          description: Notification request created.
+          content:
+            application/json:
+              schema:
+                type: integer
+                description: Identifier of a notification request in system SKDATA2
+              examples:
+                responseBody:
+                  summary: Response body example - notification request created with identifier in response
+                  value: 6148914691953202170
