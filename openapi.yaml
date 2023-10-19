@@ -1,4 +1,4 @@
-openapi: 3.0.3
+﻿openapi: 3.0.3
 tags: [name: "version", name: "order", name: "parcel", name: "event", name: "lists", name: "routing", name: "notification"]            
 
 info:
@@ -1274,6 +1274,135 @@ paths:
                 responseBody:
                   summary: Response body example - parcelshop events
                   value: [{"code": "DODEI", "agentLocationCode": "SK20790", "dateTimeUtc": "2022-11-14T11:36:15Z", "parcelNr": "13490018336736", "soCode": "327", "asCode": "", "creationDateTimeUtc": "2022-11-14T16:55:29.969195Z", "modificationDateTimeUtc": "2022-11-15T01:55:17.3058635Z", "receiverDetail": {}, "codDetail": {}, "idCheckDetail": {"type": "PINCODE",     "documentType": "", "documentNumber": "968157"}}, {"code": "DODEI", "agentLocationCode": "SK20676", "dateTimeUtc": "2022-11-14T11:37:12Z", "parcelNr": "06505075556806", "soCode": "327",   "asCode": "", "creationDateTimeUtc": "2022-11-14T16:55:29.937941Z", "modificationDateTimeUtc": "2022-11-15T01:55:17.3137194Z", "receiverDetail": {}, "codDetail": {}, "idCheckDetail": {   "type": "PINCODE", "documentType": "", "documentNumber": "397365" }}, {"code": "DODEI", "agentLocationCode": "SK20528", "dateTimeUtc": "2022-11-14T11:52:04Z", "parcelNr": "06545600361899",   "soCode": "329", "asCode": "", "creationDateTimeUtc": "2022-11-14T17:05:26.3366062Z", "modificationDateTimeUtc": "2022-11-15T02:00:32.753294Z", "receiverDetail": {}, "codDetail": {},     "idCheckDetail": {"type": "PINCODE", "documentType": "", "documentNumber": "_NOPIN_" }}, {"code": "DOPKY", "agentLocationCode": "SK10730", "dateTimeUtc": "2022-11-14T14:52:05Z", "parcelNr": "06505602467465", "soCode": "345", "asCode": "", "creationDateTimeUtc": "2022-11-15T07:05:28.6483824Z", "modificationDateTimeUtc": "2022-11-15T07:05:29.2533333Z", "receiverDetail": {     "name": "Štefan Monika Čeri", "street": "", "houseNr": "", "zip": "", "city": "", "countryCode": "SK" }, "codDetail": {}, "idCheckDetail": {} }]
+  "/Shp650/1.0/scans/modified-since/{sinceDateUtc}/scan-types/{scanTypes}/{pageindex}/{pagesize}":
+    parameters:
+      - name: apiKey
+        in: header
+        description: API key for authorization
+        required: true
+        schema:
+          type: string
+      - name: sinceDateUtc
+        in: path
+        description: date and time the scans occured from
+        required: true
+        schema:
+          type: string
+          format: "yyyyMMddHHmmss"
+      - name: scanTypes
+        in: path
+        description: relevant scan types, e.g. 06,13 
+        required: true
+        schema:
+          type: string
+          format: "[0-9,]{35}"
+      - name: pageindex
+        in: path
+        description: page index if paging is applied (1 if not)
+        required: true
+        schema:
+          type: integer
+          format: "[0-9]{10}"
+      - name: pagesize
+        in: path
+        description: number of records on page if paging is applied (0 or negative number means paging is not applied)
+        required: true
+        schema:
+          type: integer
+          format: "[0-9]{10}"
+    get:
+      summary: Parcelshop scans of specified scan types from given date and time
+      description: Returns information about scans of specified scan types in all parcelshops for all parcels from given datetime
+      operationId: getPUSScansFromDatetime
+      tags: ["event"]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                description: set of scan of specified scan type information in parcelshop for parcel
+                items:
+                  type: object
+                  description: scan of specified scan type information in parcelshop for parcel
+                  properties:
+                    code:
+                      type: string
+                      format: (01/02/03/04/05/06/08/09/10/12/13/14/15/17/18/20/23/77)
+                      description: scan type code - 01=Consolidation, 02=Inbound, 03=Out for delivery, 04=Driver's return, 05=Pickup-up, 06=System return, 08=Warehouse, 09=Inbound exception, 10=HUB scan, 12=Customs clearance process, 13=Delivered, 14=Delivery attempt not sucessful, 15=Driver's pickup-up, 17=Export / import cleared, 18=Additional information, 20=Loading, 23=Delivered by driver to DPD parcelshop, 77=Collection request
+                    dateTimeUtc:
+                      type: string
+                      format: yy-mm-ddThh:MM:ssZ
+                      description: event date and time
+                    parcelNr:
+                      type: string
+                      format: "[0-9]{14}"
+                      description: Parcel number
+                    soCode:
+                      type: string
+                      format: "[0-9]{3}"
+                      description: SOCODE (service code)
+                    asCode:
+                      type: string
+                      format: "[a-Z 0-9]{3}"
+                      description: ASCODE (additional service code)
+                    creationDateTimeUtc:
+                      type: string
+                      format: yy-mm-ddThh:MM:ssZ
+                      description: date and time of creation in SKDATA2
+                    modificationDateTimeUtc:
+                      type: string
+                      format: yy-mm-ddThh:MM:ssZ
+                      description: date and time of last modification in SKDATA2
+                    receiverDetail:
+                      type: object
+                      description: Information about receiver
+                      properties:
+                        name:
+                          type: string
+                          format: "[a-Z]{2,35}"
+                          description: The first name and the last name of a receiver
+                        street:
+                          type: string
+                          format: "[a-Z0-9 ]{50}"
+                          description: Street of a receiver
+                        houseNr:
+                          type: string
+                          format: "[a-Z0-9/]{6}"
+                          description: House number of a receiver
+                        zip:
+                          type: string
+                          format: "[a-Z0-9]{10}"
+                          description: Zip code of a receiver
+                        city:
+                          type: string
+                          format: "[a-Z0-9]{50}"
+                          description: City of a receiver
+                        countryCode:
+                          type: string
+                          format: "[a-Z]{2}"
+                          description: 2 character ISO code of a receiver country
+                    codDetail:
+                      type: object
+                      description: Information about Cash on Delivery
+                      properties:
+                        amount:
+                          type: number
+                          format: "[0-9.]{20}"
+                          description: Amount of COD
+                        currencyCode:
+                          type: string
+                          format: "[a-Z]{3}"
+                          description: 3 character currency code
+                        paymentType:
+                          type: string
+                          format: "[a-Z]{10}"
+                          description: payment type - Cash, Crossed Cheque, Credit Card, Gateway, Combination
+              examples:
+                responseBody:
+                  summary: Response body example - parcelshop scans
+                  value: [{"code": "06", "dateTimeUtc": "2022-11-14T11:36:15Z", "parcelNr": "13490018336736", "soCode": "327", "asCode": "", "creationDateTimeUtc": "2022-11-14T16:55:29.969195Z", "modificationDateTimeUtc": "2022-11-15T01:55:17.3058635Z", "receiverDetail": {"name": "Štefan Monika Čeri", "street": "", "houseNr": "", "zip": "", "city": "", "countryCode": "SK" }, "codDetail": {}}, {"code": "13", "dateTimeUtc": "2022-11-14T11:37:12Z", "parcelNr": "06505075556806", "soCode": "327",   "asCode": "", "creationDateTimeUtc": "2022-11-14T16:55:29.937941Z", "modificationDateTimeUtc": "2022-11-15T01:55:17.3137194Z", "receiverDetail": {}, "codDetail": {}} ]
   "/Shp650/1.0/pudo/sk":
     get:
       summary: List of Parcelshops
