@@ -17,7 +17,7 @@ externalDocs:
   url: https://foresgroup.sharepoint.com/:f:/s/FTGProjekty/EhPINzfZx8RHm0IXPpbgO3wBvwPYbWe-kmjUamVSgh0AsQ?e=6BrIXz
 
 servers:
-- url: https://tools.dpd.sk/integration-api
+- url: https://tools.dpd.sk/integration-api-cdb1
   description: Integration API
 
 paths:
