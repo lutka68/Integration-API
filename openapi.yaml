@@ -1,4 +1,4 @@
-﻿openapi: 3.0.3
+openapi: 3.0.3
 tags: [name: "version", name: "order", name: "parcel", name: "event", name: "lists", name: "routing", name: "notification"]            
 
 info:
@@ -2055,6 +2055,125 @@ paths:
                 responseBody:
                   summary: Response body example - list of countries
                   value: [{"code": "AD", "name": "ANDORRA", "isoNumericCountryCode": 20, "isoAlpha3CountryCode": "AND", "currencyCode": "EUR", "isEUMember": false }, {"code": "AE", "name": "UNITED ARAB EMIRATES", "isoNumericCountryCode": 784, "isoAlpha3CountryCode": "ARE", "currencyCode": "AED", "isEUMember": false }, {"code": "AF", "name": "AFGHANISTAN",   "isoNumericCountryCode": 4, "isoAlpha3CountryCode": "AFG", "currencyCode": "AFN", "isEUMember": false }]
+  "/Shp650/1.0/bankaccounts/{pageindex}/{pagesize}":
+    parameters:
+      - name: pageindex
+        in: path
+        description: page index if paging is applied (1 if not)
+        required: true
+        schema:
+          type: integer
+          format: "[0-9]{10}"
+      - name: pagesize
+        in: path
+        description: number of records on page if paging is applied (0 or negative number means paging is not applied)
+        required: true
+        schema:
+          type: integer
+          format: "[0-9]{10}"
+    get:
+      summary: Bank accounts paged list
+      description: Returns paged information about customers bank accounts
+      operationId: getBankAccounts
+      tags: ["lists"]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                description: set of customers bank accounts
+                items:
+                  type: object
+                  description: bank account details
+                  properties:
+                    iban:
+                      type: string
+                      format: "[A-Z 0-9]{5,34}"
+                      description: IBAN
+                    bicSwift:
+                      type: string
+                      format: "[A-Z 0-9]{0,11}"
+                      description: BIC/SWIFT code
+                    customerName:
+                      type: string
+                      format: "[a-Z 0-9]{1,255}"
+                      description: Customer name
+                    invoicingNumber:
+                      type: string
+                      format: "[0-9]{11}"
+                      description: Invoicing number
+                    isActive:
+                      type: boolean
+                      description: Is bank account active
+              examples:
+                responseBody:
+                  summary: Response body example - bank accounts
+                  value: [{"iban":"SK9311000000002943053035","bicSwift": "TATRSKBX","customerName":"Žravá Mrška SK s. r. o.", "invoicingNumber": "50151432285","isActive": true},{"iban": "SK9311000000002943053035","bicSwift":"TATRSKBX","customerName":"Žravá Mrška 1 SK s. r. o.","invoicingNumber":"51151432285","isActive":true}]
+  "/Shp650/1.0/bankaccounts/modified-since/{sinceDateUtc}/{pageindex}/{pagesize}":
+    parameters:
+      - name: sinceDateUtc
+        in: path
+        description: date and time the events occured from
+        required: true
+        schema:
+          type: string
+          format: "yyyyMMddHHmmss"
+      - name: pageindex
+        in: path
+        description: page index if paging is applied (1 if not)
+        required: true
+        schema:
+          type: integer
+          format: "[0-9]{10}"
+      - name: pagesize
+        in: path
+        description: number of records on page if paging is applied (0 or negative number means paging is not applied)
+        required: true
+        schema:
+          type: integer
+          format: "[0-9]{10}"
+    get:
+      summary: Bank accounts from given date and time
+      description: Returns information about customers bank accounts from given datetime
+      operationId: getBankAccountsSiceFrom
+      tags: ["lists"]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                description: set of customers bank accounts
+                items:
+                  type: object
+                  description: bank account details
+                  properties:
+                    iban:
+                      type: string
+                      format: "[A-Z 0-9]{5,34}"
+                      description: IBAN
+                    bicSwift:
+                      type: string
+                      format: "[A-Z 0-9]{0,11}"
+                      description: BIC/SWIFT code
+                    customerName:
+                      type: string
+                      format: "[a-Z 0-9]{1,255}"
+                      description: Customer name
+                    invoicingNumber:
+                      type: string
+                      format: "[0-9]{11}"
+                      description: Invoicing number
+                    isActive:
+                      type: boolean
+                      description: Is bank account active
+              examples:
+                responseBody:
+                  summary: Response body example - bank accounts
+                  value: [{"iban":"SK9311000000002943053035","bicSwift": "TATRSKBX","customerName":"Žravá Mrška SK s. r. o.", "invoicingNumber": "50151432285","isActive": true},{"iban": "SK9311000000002943053035","bicSwift":"TATRSKBX","customerName":"Žravá Mrška 1 SK s. r. o.","invoicingNumber":"51151432285","isActive":true}]
   "/Shp650/1.0/routing/calculate":
     post:
       summary: Calculation of routing
